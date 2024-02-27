@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.Posts;
 
 public class PostEditRequest {
     private String postBody;

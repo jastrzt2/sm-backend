@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.Posts;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;

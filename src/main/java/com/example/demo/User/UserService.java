@@ -1,8 +1,9 @@
 package com.example.demo.User;
 
-import com.mongodb.DuplicateKeyException;
+import com.example.demo.util.ServiceResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,27 +16,37 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserDTOConverter userDTOConverter;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public List<User> allUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<User> singleUser(ObjectId id){
+    public Optional<User> singleUser(ObjectId id) {
         return userRepository.findById(id);
     }
 
     @Transactional
-    public User createUser(UserDTO userDTO) throws EmailAlreadyUsedException {
+    public ServiceResponse<UserDTO> createUser(UserDTO userDTO) {
+        ServiceResponse<UserDTO> response = new ServiceResponse<>();
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent() && userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
+            response.setSuccess(false);
+            response.setMessage("User with this email and username already exists");
+            return response;
+        }
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
-            throw new EmailAlreadyUsedException("Email already in use: " + userDTO.getEmail());
+            return new ServiceResponse<>(null, false, "User with this email already exists");
         }
-
-        Optional<User> existingUserByUsername = userRepository.findByUsername(userDTO.getUsername());
-        if (existingUserByUsername.isPresent()) {
-            throw new UsernameAlreadyUsedException("Username already in use: " + userDTO.getUsername());
+        if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
+            return new ServiceResponse<>(null, false, "User with this username already exists");
         }
-        // Convert UserDTO to User entity and save
         User user = userDTOConverter.convertUserDTOToUser(userDTO);
-        return userRepository.save(user);
+        String hashedPassword = passwordEncoder.encode(userDTO.getPassword());
+        user.setPassword(hashedPassword);
+        userRepository.save(user);
+        user.setPassword(null);
+        return new ServiceResponse<>(userDTOConverter.convertUserToUserDTO(user), true, "User created successfully");
     }
+
 
 }

@@ -1,6 +1,6 @@
 package com.example.demo.User;
 
-import com.example.demo.util.ValidationErrorResponse;
+import com.example.demo.util.ServiceResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,19 +30,11 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
-        try {
-            UserDTO createdUserDto = userDTOConverter.convertUserToUserDTO(userService.createUser(userDTO));
-            return new ResponseEntity<>(createdUserDto, HttpStatus.CREATED);
-        } catch (EmailAlreadyUsedException | UsernameAlreadyUsedException e) {
-            ValidationErrorResponse errorResponse = new ValidationErrorResponse();
-            if (e instanceof EmailAlreadyUsedException) {
-                errorResponse.addFieldError("email", e.getMessage());
-            } else if (e instanceof UsernameAlreadyUsedException) {
-                errorResponse.addFieldError("username", e.getMessage());
-            }
-            System.out.println("Error: " + errorResponse.toString());
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ServiceResponse<UserDTO>> createUser(@RequestBody UserDTO userDTO) {
+        ServiceResponse<UserDTO> response = userService.createUser(userDTO);
+        HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(response, status);
     }
+
+
 }

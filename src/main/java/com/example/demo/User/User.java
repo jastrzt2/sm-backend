@@ -1,6 +1,7 @@
 package com.example.demo.User;
 
-import com.example.demo.Post;
+import com.example.demo.Posts.Post;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -22,5 +23,7 @@ public class User {
     private String email;
     @DocumentReference
     private List<Post> posts;
+    @NotBlank(message = "Password is required")
+    private String password;
 
 }

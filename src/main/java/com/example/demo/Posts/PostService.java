@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.Posts;
 
 import com.example.demo.User.User;
 import org.bson.types.ObjectId;

@@ -16,6 +16,7 @@ public class UserDTO {
     @Email(message = "Email should be valid")
     private String email;
     private String city;
-    // Other fields you need for user creation
+    @NotBlank(message = "Password is required")
+    private String password;
 
 }
