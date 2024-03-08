@@ -1,60 +1,36 @@
 package com.example.demo.Posts;
 
 import com.example.demo.User.User;
+import com.example.demo.User.UserService;
 import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class PostService {
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private PostDTOConverter postDTOConverter;
+    @Autowired
+    private UserService userService;
 
-    public Post createPost(String postBody, String userId){
-        Post post = postRepository.insert(new Post(postBody));
+    public Post savePost(PostDto postDto) {
+        Post post = postDTOConverter.convertPostDtoDTOToPost(postDto);
+        post.setId(new ObjectId());
+        post.setCreatedAt(Date.from(new Date().toInstant()));
 
-        mongoTemplate.update(User.class)
-                .matching(Criteria.where("id").is(userId))
-                .apply(new Update().push("posts").value(post))
-                .first();
+        post = postRepository.save(post);
+
+        userService.addPostIdToUser(postDto.getUserId(), post.getId());
 
         return post;
-    }
-
-    public Post editPost(String  postId, String newPostBody) {
-        // Find the post by its ID
-        ObjectId objectId;
-        try {
-            objectId = new ObjectId(postId);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid postId format: " + postId, e);
-        }
-
-        Optional<Post> postOptional = postRepository.findById(objectId);
-        if (postOptional.isPresent()) {
-            Post post = postOptional.get();
-
-            // Update the post body
-            post.setPostBody(newPostBody);
-
-            // Save the updated post
-            postRepository.save(post);
-
-            return post;
-        } else {
-            // Handle the case where the post does not exist, e.g., throw an exception or return null
-            throw new NoSuchElementException("Post with id " + postId + " not found.");
-        }
     }
 
 
@@ -65,4 +41,26 @@ public class PostService {
     public Optional<Post> singlePost(ObjectId id){
         return postRepository.findById(id);
     }
+
+    public List<PostToFrontendDTO> getLastTwentyPosts() {
+        List<Post> posts = postRepository.findLastTwentyPosts();
+        List<PostToFrontendDTO> postDTOs = new ArrayList<>();
+
+        for (Post post : posts) {
+            PostToFrontendDTO dto = new PostToFrontendDTO();
+            BeanUtils.copyProperties(post, dto);
+            dto.setId(post.getId().toString());
+            dto.setUserId(post.getUserId().toString());
+            User creator = userService.findById(post.getUserId()).orElse(null);
+            if (creator != null) {
+                dto.setCreatorName(creator.getName());
+                dto.setCreatorImageUrl(creator.getImageUrl());
+            }
+
+            postDTOs.add(dto);
+        }
+
+        return postDTOs;
+    }
+
 }

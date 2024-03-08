@@ -4,11 +4,9 @@ package com.example.demo.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-public class UserDTO {
+public class UserCreatingDTO {
     private String name;
     @NotBlank(message = "Username is required")
     private String username;

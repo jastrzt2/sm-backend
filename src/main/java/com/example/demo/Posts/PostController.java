@@ -17,28 +17,21 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Map<String, String> payload){
-        return new ResponseEntity<Post>(postService.createPost(payload.get("postBody"), payload.get("userId")), HttpStatus.OK);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
-        return new ResponseEntity<List<Post>>(postService.allPosts(), HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Optional<Post>> getPostById(@PathVariable ObjectId id) {
         return new ResponseEntity<Optional<Post>>(postService.singlePost(id), HttpStatus.OK);
     }
 
-    @PutMapping("/posts/{postId}")
-    public ResponseEntity<Post> editPost(@PathVariable String postId, @RequestBody PostEditRequest request) {
-        try {
-            Post updatedPost = postService.editPost(postId, request.getPostBody());
-            return ResponseEntity.ok(updatedPost);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping
+    public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
+        Post savedPost = postService.savePost(postDto);
+        return ResponseEntity.ok(savedPost);
+    }
+
+    @GetMapping("/getPosts")
+    public ResponseEntity<List<PostToFrontendDTO>> getLastTwentyPosts() {
+        System.out.println("Getting last 20 posts");
+        List<PostToFrontendDTO> posts = postService.getLastTwentyPosts();
+        return ResponseEntity.ok(posts);
     }
 }

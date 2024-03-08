@@ -28,13 +28,22 @@ public class UserController {
         return new ResponseEntity<Optional<User>>(userService.singleUser(id), HttpStatus.OK);
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<Optional<User>> getUserDetails(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = null;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            token = authorizationHeader.substring(7);
+        }
+
+        return new ResponseEntity<Optional<User>>(userService.getUserDetails(token), HttpStatus.OK);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ServiceResponse<UserDTO>> createUser(@RequestBody UserDTO userDTO) {
-        ServiceResponse<UserDTO> response = userService.createUser(userDTO);
+    public ResponseEntity<ServiceResponse<UserCreatingDTO>> createUser(@RequestBody UserCreatingDTO userCreatingDTO) {
+        ServiceResponse<UserCreatingDTO> response = userService.createUser(userCreatingDTO);
         HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(response, status);
     }
-
 
 }

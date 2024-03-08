@@ -3,11 +3,13 @@ package com.example.demo.User;
 import com.example.demo.Posts.Post;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "users")
@@ -21,9 +23,9 @@ public class User {
     private String city;
     @Indexed(unique = true)
     private String email;
-    @DocumentReference
-    private List<Post> posts;
+    private List<ObjectId> posts = new ArrayList<>();;
     @NotBlank(message = "Password is required")
     private String password;
+    private String imageUrl;
 
 }
