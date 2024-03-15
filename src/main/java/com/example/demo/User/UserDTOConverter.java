@@ -19,4 +19,16 @@ public class UserDTOConverter {
 
         return user;
     }
+
+    public UserCurrentUserDTO convertUserToUserCurrentDTO(User user){
+        UserCurrentUserDTO userCurrentUserDTO = modelMapper.map(user, UserCurrentUserDTO.class);
+
+        return userCurrentUserDTO;
+    }
+
+    public User convertUserCurrentDTOtoUser(UserCurrentUserDTO userCurrentUserDTO){
+        User user = modelMapper.map(userCurrentUserDTO, User.class);
+
+        return user;
+    }
 }

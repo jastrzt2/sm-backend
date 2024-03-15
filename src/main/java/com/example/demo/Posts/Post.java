@@ -29,5 +29,7 @@ public class Post {
     private ObjectId userId;
     private Date createdAt;
     private Date updatedAt;
+    private List<ObjectId> likes;
+    private List<ObjectId> comments;
 
 }

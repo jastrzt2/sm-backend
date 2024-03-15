@@ -23,7 +23,10 @@ public class User {
     private String city;
     @Indexed(unique = true)
     private String email;
-    private List<ObjectId> posts = new ArrayList<>();;
+    private List<ObjectId> posts = new ArrayList<>();
+    private List<ObjectId> savedPosts = new ArrayList<>();
+    private List<ObjectId> likedPosts = new ArrayList<>();
+    private List<ObjectId> comments = new ArrayList<>();
     @NotBlank(message = "Password is required")
     private String password;
     private String imageUrl;

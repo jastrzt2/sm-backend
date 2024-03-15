@@ -18,12 +18,13 @@ public class PostController {
     private PostService postService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Post>> getPostById(@PathVariable ObjectId id) {
-        return new ResponseEntity<Optional<Post>>(postService.singlePost(id), HttpStatus.OK);
+    public ResponseEntity<Optional<PostToFrontendDTO>> getPostById(@PathVariable ObjectId id) {
+        return new ResponseEntity<Optional<PostToFrontendDTO>>(postService.singlePost(id), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
+
         Post savedPost = postService.savePost(postDto);
         return ResponseEntity.ok(savedPost);
     }
@@ -33,5 +34,16 @@ public class PostController {
         System.out.println("Getting last 20 posts");
         List<PostToFrontendDTO> posts = postService.getLastTwentyPosts();
         return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> likePost(@PathVariable String postId, @RequestBody Map<String, String> body) {
+        try {
+            String userId = body.get("userId");
+            PostToFrontendDTO updatedPost = postService.likePost(postId, userId);
+            return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

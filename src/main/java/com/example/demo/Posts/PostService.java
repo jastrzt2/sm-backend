@@ -38,8 +38,9 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Optional<Post> singlePost(ObjectId id){
-        return postRepository.findById(id);
+    public Optional<PostToFrontendDTO> singlePost(ObjectId id) {
+        return postRepository.findById(id)
+                .map(postDTOConverter::convertToFrontendPost);
     }
 
     public List<PostToFrontendDTO> getLastTwentyPosts() {
@@ -47,15 +48,7 @@ public class PostService {
         List<PostToFrontendDTO> postDTOs = new ArrayList<>();
 
         for (Post post : posts) {
-            PostToFrontendDTO dto = new PostToFrontendDTO();
-            BeanUtils.copyProperties(post, dto);
-            dto.setId(post.getId().toString());
-            dto.setUserId(post.getUserId().toString());
-            User creator = userService.findById(post.getUserId()).orElse(null);
-            if (creator != null) {
-                dto.setCreatorName(creator.getName());
-                dto.setCreatorImageUrl(creator.getImageUrl());
-            }
+            PostToFrontendDTO dto = postDTOConverter.convertToFrontendPost(post);
 
             postDTOs.add(dto);
         }
@@ -63,4 +56,25 @@ public class PostService {
         return postDTOs;
     }
 
+    public PostToFrontendDTO likePost(String postId, String userIdString) {
+        ObjectId postIdObj = new ObjectId(postId);
+        ObjectId userIdObj = new ObjectId(userIdString);
+
+        Post post = postRepository.findById(postIdObj).orElseThrow(() -> new RuntimeException("Post not found"));
+        User user = userService.findById(userIdObj).orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isLiked = post.getLikes().contains(userIdObj);
+        if (isLiked) {
+            post.getLikes().remove(userIdObj);
+            user.getLikedPosts().remove(postIdObj);
+        } else {
+            post.getLikes().add(userIdObj);
+            user.getLikedPosts().add(postIdObj);
+        }
+
+        postRepository.save(post);
+        userService.save(user);
+
+        return postDTOConverter.convertToFrontendPost(post);
+    }
 }

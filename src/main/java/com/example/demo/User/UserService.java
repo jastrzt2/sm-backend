@@ -1,5 +1,6 @@
 package com.example.demo.User;
 
+import com.example.demo.Posts.Post;
 import com.example.demo.util.ServiceResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,12 @@ public class UserService {
     private UserDTOConverter userDTOConverter;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    public UserService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
 
     public List<User> allUsers() {
@@ -58,20 +65,15 @@ public class UserService {
     }
 
 
-    public Optional<User> getUserDetails(String token) {
+    public Optional<UserCurrentUserDTO> getUserDetails(String token) {
         if( token.startsWith("\"") || token.endsWith("\"") ) //needed because send String starts and ends with quotation marks
             token = token.replaceAll("^\"|\"$", "");
         String username = extractUsername(token);
         if(username == null) {
             return Optional.empty();
         }
-        return userRepository.findByUsername(username);
-    }
-
-
-    @Autowired
-    public UserService(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+        return userRepository.findByUsername(username)
+                .map(user -> userDTOConverter.convertUserToUserCurrentDTO(user));
     }
 
     public void addPostIdToUser(ObjectId userId, ObjectId postId) {
@@ -84,4 +86,28 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    public boolean savePost(String userId, String postId) {
+        try {
+            ObjectId postIdObj = new ObjectId(postId);
+            ObjectId userIdObj = new ObjectId(userId);
+
+            User user = findById(userIdObj).orElseThrow(() -> new RuntimeException("User not found"));
+
+            boolean isSaved = user.getSavedPosts().contains(userIdObj);
+            if (isSaved) {
+                user.getSavedPosts().remove(postIdObj);
+            } else {
+                user.getSavedPosts().add(postIdObj);
+            }
+
+            save(user);
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
 }
