@@ -1,10 +1,12 @@
 package com.example.demo.Posts;
 
+import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,25 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<?> createPost(
+            @RequestParam("userId") String userId,
+            @RequestParam("caption") String caption,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "tags", required = false) String tags,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        PostCreatedDto postDto = new PostCreatedDto();
+        postDto.setUserId(String.valueOf(new ObjectId(userId)));
+        postDto.setCaption(caption);
+        if (location != null) {
+            postDto.setLocation(location);
+        }
+        if (tags != null) {
+            postDto.setTags(tags);
+        }
+        if (file != null && !file.isEmpty()) {
+            postDto.setFile(file);
+        }
 
         Post savedPost = postService.savePost(postDto);
         return ResponseEntity.ok(savedPost);

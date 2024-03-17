@@ -1,6 +1,5 @@
 package com.example.demo.User;
 
-import com.example.demo.Posts.Post;
 import com.example.demo.util.ServiceResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.demo.util.JwtUtil.extractUsername;
+import static com.example.demo.Session.JwtUtil.extractUsername;
 
 @Service
 public class UserService {
@@ -109,5 +108,9 @@ public class UserService {
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
     }
 }

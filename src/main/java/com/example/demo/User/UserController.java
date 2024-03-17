@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.example.demo.util.JwtUtil.extractUsername;
+import static com.example.demo.Session.JwtUtil.extractUsername;
 
 @RestController
 @RequestMapping("/api/v1/users")

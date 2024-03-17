@@ -1,5 +1,6 @@
 package com.example.demo.Posts;
 
+import com.example.demo.Images.ImageService;
 import com.example.demo.User.User;
 import com.example.demo.User.UserService;
 import org.bson.types.ObjectId;
@@ -7,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,15 +22,29 @@ public class PostService {
     private PostDTOConverter postDTOConverter;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ImageService imageService;
 
-    public Post savePost(PostDto postDto) {
-        Post post = postDTOConverter.convertPostDtoDTOToPost(postDto);
+    public Post savePost(PostCreatedDto postDto) {
+        String imageUrl = "";
+        if(postDto.getFile() != null) {
+            try {
+                imageUrl = (String) imageService.uploadImage(postDto.getFile()).get("url");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Post post = new Post();
+        BeanUtils.copyProperties(postDto, post);
         post.setId(new ObjectId());
+        post.setUserId(new ObjectId(postDto.getUserId()));
         post.setCreatedAt(Date.from(new Date().toInstant()));
+
+        post.setImageUrl(imageUrl);
 
         post = postRepository.save(post);
 
-        userService.addPostIdToUser(postDto.getUserId(), post.getId());
+        userService.addPostIdToUser(new ObjectId(postDto.getUserId()), post.getId());
 
         return post;
     }
@@ -49,7 +65,6 @@ public class PostService {
 
         for (Post post : posts) {
             PostToFrontendDTO dto = postDTOConverter.convertToFrontendPost(post);
-
             postDTOs.add(dto);
         }
 

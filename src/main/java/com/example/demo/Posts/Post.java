@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,7 @@ public class Post {
     private ObjectId userId;
     private Date createdAt;
     private Date updatedAt;
-    private List<ObjectId> likes;
-    private List<ObjectId> comments;
+    private List<ObjectId> likes = new ArrayList<>();
+    private List<ObjectId> comments = new ArrayList<>();
 
 }
