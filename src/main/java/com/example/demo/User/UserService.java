@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,14 +91,16 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean savePost(String userId, String postId) {
+    public boolean savePost( String postId) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return false;
+            }
+
+            User user = (User) authentication.getPrincipal();
             ObjectId postIdObj = new ObjectId(postId);
-            ObjectId userIdObj = new ObjectId(userId);
-
-            User user = findById(userIdObj).orElseThrow(() -> new RuntimeException("User not found"));
-
-            boolean isSaved = user.getSavedPosts().contains(userIdObj);
+            boolean isSaved = user.getSavedPosts().contains(new ObjectId(postId));
             if (isSaved) {
                 user.getSavedPosts().remove(postIdObj);
             } else {
@@ -106,6 +110,7 @@ public class UserService {
             save(user);
             return true;
         } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }

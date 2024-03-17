@@ -45,7 +45,7 @@ public class PostController {
             postDto.setFile(file);
         }
 
-        Post savedPost = postService.savePost(postDto);
+        Post savedPost = postService.createPost(postDto);
         return ResponseEntity.ok(savedPost);
     }
 

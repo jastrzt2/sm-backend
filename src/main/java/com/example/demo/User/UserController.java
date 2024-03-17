@@ -52,13 +52,8 @@ public class UserController {
     @PostMapping("/save")
     public ResponseEntity<?> savePost(@RequestHeader("Authorization") String authorizationHeader,
                                       @RequestBody Map<String, String> body) {
-        String token = authorizationHeader.substring(7); // Assuming Bearer token
-        String postId = body.get("postId"); // Assuming the key is postId
-        String userId = extractUsername(token);
-
-
         try {
-            boolean success = userService.savePost(userId, postId);
+            boolean success = userService.savePost(body.get("postId"));
             if (success) {
                 return ResponseEntity.ok().build();
             } else {

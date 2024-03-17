@@ -25,7 +25,7 @@ public class PostService {
     @Autowired
     private ImageService imageService;
 
-    public Post savePost(PostCreatedDto postDto) {
+    public Post createPost(PostCreatedDto postDto) {
         String imageUrl = "";
         if(postDto.getFile() != null) {
             try {
