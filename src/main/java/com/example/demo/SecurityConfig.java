@@ -32,10 +32,14 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(antMatcher("/api/v1/users/create")).permitAll()
                         .requestMatchers(antMatcher("/api/auth/signin")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/details")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/getPosts")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/posts/get/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/posts/edit")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/posts/delete")).permitAll()
                         .anyRequest().authenticated()) // Ensure all other requests are authenticated
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT Token Filter
 

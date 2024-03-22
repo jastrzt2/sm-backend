@@ -118,4 +118,10 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
+
+    public void removePostIdFromUser(String id, ObjectId objectId) {
+        Query query = new Query(Criteria.where("_id").is(new ObjectId(id)));
+        Update update = new Update().pull("posts", objectId);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
 }

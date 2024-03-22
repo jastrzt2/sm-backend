@@ -19,9 +19,9 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<Optional<PostToFrontendDTO>> getPostById(@PathVariable ObjectId id) {
-        return new ResponseEntity<Optional<PostToFrontendDTO>>(postService.singlePost(id), HttpStatus.OK);
+        return new ResponseEntity<>(postService.singlePost(id), HttpStatus.OK);
     }
 
     @PostMapping
@@ -61,6 +61,30 @@ public class PostController {
         try {
             String userId = body.get("userId");
             PostToFrontendDTO updatedPost = postService.likePost(postId, userId);
+            return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<?> editPost(@RequestParam("postId") String postId,
+                                      @RequestParam("caption") String caption,
+                                      @RequestParam(value = "location", required = false) String location,
+                                      @RequestParam(value = "tags", required = false) String tags,
+                                      @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            PostToFrontendDTO updatedPost = postService.editPost(postId, caption, location, tags, file);
+            return ResponseEntity.ok(updatedPost);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> editPost(@RequestParam("postId") String postId) {
+        try {
+            PostToFrontendDTO updatedPost = postService.deletePost(postId);
             return ResponseEntity.ok(updatedPost);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

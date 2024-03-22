@@ -6,7 +6,10 @@ import com.example.demo.User.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,6 +92,60 @@ public class PostService {
 
         postRepository.save(post);
         userService.save(user);
+
+        return postDTOConverter.convertToFrontendPost(post);
+    }
+
+    public PostToFrontendDTO editPost(String postId, String caption, String location, String tags, MultipartFile file) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        User user = (User) authentication.getPrincipal();
+        Post currentPost = postRepository.findById(new ObjectId(postId)).orElseThrow(() -> new RuntimeException("Post not found"));
+        if(!currentPost.getUserId().toString().equals(user.getId().toString())) {
+            throw new RuntimeException("User not authorized to edit this post");
+        }
+
+        Post post = new Post();
+        BeanUtils.copyProperties(currentPost, post);
+
+        post.setId(new ObjectId(postId));
+        post.setUserId(currentPost.getUserId());
+        post.setCaption(caption);
+        post.setLocation(location);
+        post.setTags(tags);
+        if (file != null && !file.isEmpty()) {
+            try {
+                imageService.deleteImage(currentPost.getImageUrl());
+                String imageUrlString = (String) imageService.uploadImage(file).get("url");
+                post.setImageUrl(imageUrlString);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            post.setImageUrl(currentPost.getImageUrl());
+        }
+        post.setUpdatedAt(Date.from(new Date().toInstant()));
+        postRepository.save(post);
+
+        return postDTOConverter.convertToFrontendPost(post);
+    }
+
+    public PostToFrontendDTO deletePost(String postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        User user = (User) authentication.getPrincipal();
+        Post post = postRepository.findById(new ObjectId(postId)).orElseThrow(() -> new RuntimeException("Post not found"));
+        if(!post.getUserId().toString().equals(user.getId().toString())) {
+            throw new RuntimeException("User not authorized to delete this post");
+        }
+
+        postRepository.deleteById(new ObjectId(postId));
+        imageService.deleteImage(post.getImageUrl());
+        userService.removePostIdFromUser(user.getId(), new ObjectId(postId));
 
         return postDTOConverter.convertToFrontendPost(post);
     }

@@ -41,7 +41,7 @@ public class UserController {
         return new ResponseEntity<Optional<UserCurrentUserDTO>>(userService.getUserDetails(token), HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ServiceResponse<UserCreatingDTO>> createUser(@RequestBody UserCreatingDTO userCreatingDTO) {
         ServiceResponse<UserCreatingDTO> response = userService.createUser(userCreatingDTO);
