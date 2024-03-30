@@ -1,5 +1,9 @@
 package com.example.demo.Posts;
 
+import com.example.demo.Comments.Comment;
+import com.example.demo.Comments.CommentDTO;
+import com.example.demo.Comments.CommentRepository;
+import com.example.demo.Comments.CommentService;
 import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +22,24 @@ import java.util.Optional;
 public class PostController {
     @Autowired
     private PostService postService;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/get/{id}")
     public ResponseEntity<Optional<PostToFrontendDTO>> getPostById(@PathVariable ObjectId id) {
         return new ResponseEntity<>(postService.singlePost(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/get")
+    public List<PostToFrontendDTO> getPosts(@RequestParam(defaultValue = "0") int page) {
+        int size = 9;
+        return postService.findPaginated(page, size);
+    }
+
+    @PostMapping("/search")
+    public List<PostToFrontendDTO> searchPosts(@RequestBody Map<String, String> body) {
+        String searchTerm = body.get("searchTerm");
+        return postService.searchPosts(searchTerm);
     }
 
     @PostMapping
@@ -88,6 +106,16 @@ public class PostController {
             return ResponseEntity.ok(updatedPost);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getComments/{postId}")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable String postId) {
+        try {
+            List<CommentDTO> comments = commentService.getCommentsForPost(postId);
+            return ResponseEntity.ok(comments);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

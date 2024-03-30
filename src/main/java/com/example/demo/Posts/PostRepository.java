@@ -16,4 +16,5 @@ public interface PostRepository extends MongoRepository<Post, ObjectId> {
         return findAll(pageable).getContent();
     }
 
+    List<Post> findByCaptionContainingIgnoreCase(String searchTerm);
 }

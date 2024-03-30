@@ -6,6 +6,9 @@ import com.example.demo.User.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -148,5 +151,55 @@ public class PostService {
         userService.removePostIdFromUser(user.getId(), new ObjectId(postId));
 
         return postDTOConverter.convertToFrontendPost(post);
+    }
+
+    public PostToFrontendDTO addCommentToPost(ObjectId postId, ObjectId id) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        post.getComments().add(id);
+        postRepository.save(post);
+
+        return postDTOConverter.convertToFrontendPost(post);
+    }
+
+    public Optional<PostToFrontendDTO> getPost(ObjectId postId) {
+        return postRepository.findById(postId)
+                .map(post -> postDTOConverter.convertToFrontendPost(post));
+    }
+
+    public Optional<PostToFrontendDTO> removeCommentFromPost(ObjectId postId, ObjectId commentId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+
+        boolean isRemoved = post.getComments().removeIf(cid -> cid.equals(commentId));
+
+        if (isRemoved) {
+            postRepository.save(post);
+        }
+        return Optional.ofNullable(postDTOConverter.convertToFrontendPost(post));
+    }
+
+    public List<PostToFrontendDTO> findPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        List<Post> posts = postRepository.findAll(pageable).getContent();
+        List<PostToFrontendDTO> postDTOs = new ArrayList<>();
+
+        for (Post post : posts) {
+            PostToFrontendDTO dto = postDTOConverter.convertToFrontendPost(post);
+            postDTOs.add(dto);
+        }
+
+        return postDTOs;
+    }
+
+    public List<PostToFrontendDTO> searchPosts(String searchTerm) {
+        List<Post> posts = postRepository.findByCaptionContainingIgnoreCase(searchTerm);
+        List<PostToFrontendDTO> postDTOs = new ArrayList<>();
+
+        for (Post post : posts) {
+            PostToFrontendDTO dto = postDTOConverter.convertToFrontendPost(post);
+            postDTOs.add(dto);
+        }
+
+        return postDTOs;
     }
 }

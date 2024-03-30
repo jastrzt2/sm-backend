@@ -43,6 +43,11 @@ public class PostDTOConverter {
                 .collect(Collectors.toSet());
         dto.setLikes(likesStringSet);
 
+        Set<String> commentsStringSet = post.getComments().stream()
+                .map(ObjectId::toString)
+                .collect(Collectors.toSet());
+        dto.setComments(commentsStringSet);
+
         User creator = userService.findById(post.getUserId()).orElse(null);
         if (creator != null) {
             dto.setCreatorName(creator.getName());

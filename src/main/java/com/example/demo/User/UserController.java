@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable ObjectId id) {
-        return new ResponseEntity<Optional<User>>(userService.singleUser(id), HttpStatus.OK);
+    public ResponseEntity<Optional<UserCurrentUserDTO>> getUserById(@PathVariable ObjectId id) {
+        return new ResponseEntity<Optional<UserCurrentUserDTO>>(userService.singleUser(id).map(user -> userDTOConverter.convertUserToUserCurrentDTO(user)), HttpStatus.OK);
     }
 
     @GetMapping("/details")
