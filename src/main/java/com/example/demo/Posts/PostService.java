@@ -6,9 +6,13 @@ import com.example.demo.User.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -27,9 +32,16 @@ public class PostService {
     @Autowired
     private PostDTOConverter postDTOConverter;
     @Autowired
+    @Lazy
     private UserService userService;
     @Autowired
     private ImageService imageService;
+    private final MongoTemplate mongoTemplate;
+
+    @Autowired
+    public PostService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public Post createPost(PostCreatedDto postDto) {
         String imageUrl = "";
@@ -178,9 +190,24 @@ public class PostService {
         return Optional.ofNullable(postDTOConverter.convertToFrontendPost(post));
     }
 
-    public List<PostToFrontendDTO> findPaginated(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        List<Post> posts = postRepository.findAll(pageable).getContent();
+    public List<PostToFrontendDTO> findByCursor(String cursor, int size) {
+        Query query = new Query();
+        if (cursor != null && !cursor.isEmpty()) {
+            ObjectId cursorId = new ObjectId(cursor);
+            query.addCriteria(Criteria.where("_id").lt(cursorId));
+        }
+
+        query.with(Sort.by(Sort.Direction.DESC, "_id")).limit(size);
+
+        List<Post> posts = mongoTemplate.find(query, Post.class);
+        return posts.stream()
+                .map(postDTOConverter::convertToFrontendPost)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<PostToFrontendDTO> searchPosts(String searchTerm) {
+        List<Post> posts = postRepository.findByCaptionContainingIgnoreCase(searchTerm);
         List<PostToFrontendDTO> postDTOs = new ArrayList<>();
 
         for (Post post : posts) {
@@ -191,8 +218,22 @@ public class PostService {
         return postDTOs;
     }
 
-    public List<PostToFrontendDTO> searchPosts(String searchTerm) {
-        List<Post> posts = postRepository.findByCaptionContainingIgnoreCase(searchTerm);
+    public List<PostToFrontendDTO> getSavedPosts(User user) {
+        List<ObjectId> savedPostIds = user.getSavedPosts();
+        List<PostToFrontendDTO> postDTOs = new ArrayList<>();
+
+        List<Post> savedPosts = postRepository.findByIdIn(savedPostIds);
+
+        for (Post post : savedPosts) {
+            PostToFrontendDTO dto = postDTOConverter.convertToFrontendPost(post);
+            postDTOs.add(dto);
+        }
+
+        return postDTOs;
+    }
+
+    public List<PostToFrontendDTO> getPostsByIds(List<ObjectId> objectIdList) {
+        List<Post> posts = postRepository.findByIdIn(objectIdList);
         List<PostToFrontendDTO> postDTOs = new ArrayList<>();
 
         for (Post post : posts) {

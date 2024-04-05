@@ -14,6 +14,7 @@ public class UserCurrentUserDTO {
         private String name;
         private String username;
         private String city;
+        private String bio;
         private String email;
         private List<String> posts = new ArrayList<>();
         private List<String> savedPosts = new ArrayList<>();

@@ -21,6 +21,7 @@ public class User {
     @Indexed(unique = true)
     private String username;
     private String city;
+    private String bio;
     @Indexed(unique = true)
     private String email;
     private List<ObjectId> posts = new ArrayList<>();

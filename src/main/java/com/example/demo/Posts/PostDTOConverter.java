@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -18,6 +19,7 @@ public class PostDTOConverter {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
+    @Lazy
     private UserService userService;
     public PostDto convertPostToPostDto(Post post){
         PostDto postDto = modelMapper.map(post, PostDto.class);

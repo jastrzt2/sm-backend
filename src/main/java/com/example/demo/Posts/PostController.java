@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -31,9 +32,9 @@ public class PostController {
     }
 
     @GetMapping("/get")
-    public List<PostToFrontendDTO> getPosts(@RequestParam(defaultValue = "0") int page) {
+    public List<PostToFrontendDTO> getPosts(@RequestParam(required = false) String cursor) {
         int size = 9;
-        return postService.findPaginated(page, size);
+        return postService.findByCursor(cursor, size);
     }
 
     @PostMapping("/search")
@@ -72,6 +73,18 @@ public class PostController {
         System.out.println("Getting last 20 posts");
         List<PostToFrontendDTO> posts = postService.getLastTwentyPosts();
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/getPostsList")
+    public ResponseEntity<List<PostToFrontendDTO>> getPostsList(@RequestParam List<String> ids) {
+        try {
+            List<ObjectId> objectIdList = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+            List<PostToFrontendDTO> posts = postService.getPostsByIds(objectIdList);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping("/{postId}/like")

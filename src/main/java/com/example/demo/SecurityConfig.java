@@ -35,7 +35,9 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/v1/users/create")).permitAll()
                         .requestMatchers(antMatcher("/api/auth/signin")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/details")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/users/getSavedPosts")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/getPosts")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/posts/getPostsList*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/get/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/**")).permitAll()
@@ -48,8 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/v1/posts/getComments/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts?page=*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/search")).permitAll()
-                        .anyRequest().authenticated()) // Ensure all other requests are authenticated
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT Token Filter
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

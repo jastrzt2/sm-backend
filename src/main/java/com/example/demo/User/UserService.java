@@ -1,5 +1,7 @@
 package com.example.demo.User;
 
+import com.example.demo.Posts.PostService;
+import com.example.demo.Posts.PostToFrontendDTO;
 import com.example.demo.util.ServiceResponse;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class UserService {
     private UserDTOConverter userDTOConverter;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PostService postservice;
 
 
     @Autowired
@@ -123,5 +127,15 @@ public class UserService {
         Query query = new Query(Criteria.where("_id").is(new ObjectId(id)));
         Update update = new Update().pull("posts", objectId);
         mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public List<PostToFrontendDTO> getSavedPosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        User user = (User) authentication.getPrincipal();
+
+        return postservice.getSavedPosts(user);
     }
 }

@@ -1,6 +1,8 @@
 package com.example.demo.User;
 
+import com.example.demo.Posts.PostToFrontendDTO;
 import com.example.demo.util.ServiceResponse;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,6 +64,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/getSavedPosts")
+    public ResponseEntity<List<PostToFrontendDTO>> getSavedPosts() {
+        return new ResponseEntity<List<PostToFrontendDTO>>(userService.getSavedPosts(), HttpStatus.OK);
     }
 
 }

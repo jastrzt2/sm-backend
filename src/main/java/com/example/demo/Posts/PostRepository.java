@@ -17,4 +17,6 @@ public interface PostRepository extends MongoRepository<Post, ObjectId> {
     }
 
     List<Post> findByCaptionContainingIgnoreCase(String searchTerm);
+
+    List<Post> findByIdIn(List<ObjectId> savedPostIds);
 }
