@@ -18,6 +18,7 @@ public class UserCurrentUserDTO {
         private String email;
         private List<String> posts = new ArrayList<>();
         private List<String> savedPosts = new ArrayList<>();
+        private List<String> likedPosts = new ArrayList<>();
         private List<String> comments = new ArrayList<>();
         private String imageUrl;
 

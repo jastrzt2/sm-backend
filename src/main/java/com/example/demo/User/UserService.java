@@ -1,5 +1,6 @@
 package com.example.demo.User;
 
+import com.example.demo.Images.ImageService;
 import com.example.demo.Posts.PostService;
 import com.example.demo.Posts.PostToFrontendDTO;
 import com.example.demo.util.ServiceResponse;
@@ -14,8 +15,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.example.demo.Session.JwtUtil.extractUsername;
@@ -31,6 +34,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private PostService postservice;
+    @Autowired
+    private ImageService imageService;
 
 
     @Autowired
@@ -137,5 +142,38 @@ public class UserService {
         User user = (User) authentication.getPrincipal();
 
         return postservice.getSavedPosts(user);
+    }
+
+    public UserCurrentUserDTO updateUser(String name, String bio, String city, MultipartFile file, String id) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+
+            if (authentication == null
+                    || !authentication.isAuthenticated()
+                    || !user.getId().equals(id)) {
+                throw new RuntimeException("User not authenticated");
+            }
+            if (name != null) {
+                user.setName(name);
+            }
+            if (bio != null) {
+                user.setBio(bio);
+            }
+            if (city != null) {
+                user.setCity(city);
+            }
+            if (file != null) {
+                imageService.deleteImage(user.getImageUrl());
+                String newUrl = (String) imageService.uploadImage(file).get("url");
+                user.setImageUrl(newUrl);
+            }
+            save(user);
+            return userDTOConverter.convertUserToUserCurrentDTO(user);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,8 @@ public class UserController {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);
         }
-
-        return new ResponseEntity<Optional<UserCurrentUserDTO>>(userService.getUserDetails(token), HttpStatus.OK);
+        Optional<UserCurrentUserDTO> userDto = userService.getUserDetails(token);
+        return new ResponseEntity<Optional<UserCurrentUserDTO>>(userDto, HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -63,6 +64,20 @@ public class UserController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<?> editUser( @PathVariable String id,
+                                       @RequestParam(required = false) MultipartFile file,
+                                       @RequestParam("name") String name,
+                                       @RequestParam("bio") String bio,
+                                       @RequestParam("city") String city) {
+        try {
+            return ResponseEntity.ok(userService.updateUser(name, bio, city, file, id));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
