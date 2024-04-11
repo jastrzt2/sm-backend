@@ -176,4 +176,30 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
+
+    public void addCommentToUser(ObjectId userId, ObjectId id) {
+        Query query = new Query(Criteria.where("_id").is(userId));
+        Update update = new Update().push("comments", id);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void removeCommentFromUser(ObjectId userId, ObjectId id) {
+        Query query = new Query(Criteria.where("_id").is(userId));
+        Update update = new Update().pull("comments", id);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void removeLikedCommentFromUser(String userID, ObjectId commentId) {
+        userRepository.findById(new ObjectId(userID)).ifPresent(user -> {
+            user.getLikedComments().remove(commentId);
+            userRepository.save(user);
+        });
+    }
+
+    public void addLikedCommentToUser(String userID, ObjectId commentId) {
+        userRepository.findById(new ObjectId(userID)).ifPresent(user -> {
+            user.getLikedComments().add(commentId);
+            userRepository.save(user);
+        });
+    }
 }

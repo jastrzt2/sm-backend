@@ -46,4 +46,14 @@ public class CommentController {
         }
     }
 
+    @GetMapping("/like/{id}")
+    public ResponseEntity<?> likeComment(@PathVariable String id) {
+        try {
+            CommentDTO updatedComment = commentService.likeComment(id);
+            return ResponseEntity.ok(updatedComment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

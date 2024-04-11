@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/v1/comments/create")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/comments/edit/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/comments/delete/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/comments/like/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/getComments/*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts?page=*")).permitAll()

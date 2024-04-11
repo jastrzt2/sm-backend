@@ -16,5 +16,5 @@ public class CommentDTO {
     private String postId;
     private Date createdAt;
     private Date updatedAt;
-    private List<ObjectId> likes = new ArrayList<>();
+    private List<String> likes = new ArrayList<>();
 }

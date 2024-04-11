@@ -20,6 +20,7 @@ public class UserCurrentUserDTO {
         private List<String> savedPosts = new ArrayList<>();
         private List<String> likedPosts = new ArrayList<>();
         private List<String> comments = new ArrayList<>();
+        private List<ObjectId> likedComments = new ArrayList<>();
         private String imageUrl;
 
 }
