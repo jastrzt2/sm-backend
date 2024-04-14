@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,6 +85,18 @@ public class UserController {
     @GetMapping("/getSavedPosts")
     public ResponseEntity<List<PostToFrontendDTO>> getSavedPosts() {
         return new ResponseEntity<List<PostToFrontendDTO>>(userService.getSavedPosts(), HttpStatus.OK);
+    }
+
+    @PostMapping("/watch")
+    public ResponseEntity<?> watchUser(@RequestBody Map<String, String> body) {
+        try {
+            return new ResponseEntity<List<String>>(userService.watchUser(body.get("userId")), HttpStatus.OK);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 }

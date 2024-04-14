@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.demo.Session.JwtUtil.extractUsername;
 
@@ -201,5 +203,27 @@ public class UserService {
             user.getLikedComments().add(commentId);
             userRepository.save(user);
         });
+    }
+
+    public List<String> watchUser(String userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BadCredentialsException("User not authenticated");
+        }
+        User user = (User) authentication.getPrincipal();
+
+        if (user.getWatched().contains(new ObjectId(userId))) {
+            user.getWatched().remove(new ObjectId(userId));
+        } else {
+            user.getWatched().add(new ObjectId(userId));
+        }
+        save(user);
+        List<ObjectId> objectIds = user.getWatched();
+        List<String> stringIds = objectIds.stream()
+                .map(ObjectId::toString)
+                .collect(Collectors.toList());
+
+        return stringIds;
+
     }
 }

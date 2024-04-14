@@ -29,6 +29,7 @@ public class User {
     private List<ObjectId> likedPosts = new ArrayList<>();
     private List<ObjectId> comments = new ArrayList<>();
     private List<ObjectId> likedComments = new ArrayList<>();
+    private List<ObjectId> watched = new ArrayList<>();
     @NotBlank(message = "Password is required")
     private String password;
     private String imageUrl;
