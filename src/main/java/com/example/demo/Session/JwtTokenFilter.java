@@ -42,7 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 
         String path = request.getRequestURI();
-        if ("/api/v1/users/create".equals(path) || "/api/auth/signin".equals(path) || "/api/v1/users/details".equals(path) || "/api/v1/posts/getPosts".equals(path) || path.startsWith("/api/v1/posts/get/")) {
+        if ("/api/v1/users/create".equals(path) || "/api/auth/signin".equals(path) || "/api/v1/users/details".equals(path) || path.startsWith("/api/v1/posts/get/")) {
             filterChain.doFilter(request, response);
             return;
         }

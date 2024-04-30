@@ -7,8 +7,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +77,34 @@ public class PostService {
                 .map(postDTOConverter::convertToFrontendPost);
     }
 
-    public List<PostToFrontendDTO> getLastTwentyPosts() {
+    private List<Post> getWatchedUserPosts(User currentUser, int limit) {
+        List<ObjectId> watchedUserIds = currentUser.getWatched();
+        return mongoTemplate.find(Query.query(Criteria.where("userId").in(watchedUserIds)).with(Sort.by(Sort.Direction.DESC, "createdAt")).limit(limit), Post.class);
+    }
+
+    private List<Post> getRecentPosts(int limit) {
+        return mongoTemplate.find(Query.query(new Criteria()).with(Sort.by(Sort.Direction.DESC, "createdAt")).limit(limit), Post.class);
+    }
+
+    private List<Post> getPopularPosts(int limit) {
+        Date oneWeekAgo = Date.from(Instant.now().minus(1, ChronoUnit.WEEKS));
+
+        List<Post> lastHundredPosts = mongoTemplate.find(
+                Query.query(Criteria.where("createdAt").gte(oneWeekAgo))
+                        .with(Sort.by(Sort.Direction.DESC, "createdAt"))
+                        .limit(100),
+                Post.class
+        );
+
+        return lastHundredPosts.stream()
+                .sorted((post1, post2) -> Integer.compare(post2.getLikes().size(), post1.getLikes().size()))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+
+
+    public List<PostToFrontendDTO> getTwentyPosts() {
         List<Post> posts = postRepository.findLastTwentyPosts();
         List<PostToFrontendDTO> postDTOs = new ArrayList<>();
 

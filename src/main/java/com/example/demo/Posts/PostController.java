@@ -1,10 +1,7 @@
 package com.example.demo.Posts;
 
-import com.example.demo.Comments.Comment;
 import com.example.demo.Comments.CommentDTO;
-import com.example.demo.Comments.CommentRepository;
 import com.example.demo.Comments.CommentService;
-import jakarta.validation.Valid;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -69,9 +65,9 @@ public class PostController {
     }
 
     @GetMapping("/getPosts")
-    public ResponseEntity<List<PostToFrontendDTO>> getLastTwentyPosts() {
+    public ResponseEntity<List<PostToFrontendDTO>> getTwentyPosts() {
         System.out.println("Getting last 20 posts");
-        List<PostToFrontendDTO> posts = postService.getLastTwentyPosts();
+        List<PostToFrontendDTO> posts = postService.getTwentyPosts();
         return ResponseEntity.ok(posts);
     }
 
