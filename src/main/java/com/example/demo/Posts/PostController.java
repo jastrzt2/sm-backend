@@ -67,7 +67,7 @@ public class PostController {
     @GetMapping("/getPosts")
     public ResponseEntity<List<PostToFrontendDTO>> getTwentyPosts() {
         System.out.println("Getting last 20 posts");
-        List<PostToFrontendDTO> posts = postService.getTwentyPosts();
+        List<PostToFrontendDTO> posts = postService.getTwentyPosts(); //TODO
         return ResponseEntity.ok(posts);
     }
 
