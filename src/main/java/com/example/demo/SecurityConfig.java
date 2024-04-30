@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(antMatcher("/api/v1/users/create")).permitAll()
-                        .requestMatchers(antMatcher("/api/auth/signin")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/auth/signin")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/details")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/getSavedPosts")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/users/watch")).permitAll()
