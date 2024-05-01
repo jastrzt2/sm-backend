@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/comments")
+    @RequestMapping("/api/v1/comments")
 public class CommentController {
 
     @Autowired
