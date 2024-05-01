@@ -44,7 +44,6 @@ public class PostController {
             @RequestParam("userId") String userId,
             @RequestParam("caption") String caption,
             @RequestParam(value = "location", required = false) String location,
-            @RequestParam(value = "tags", required = false) String tags,
             @RequestParam(value = "file", required = false) MultipartFile file) {
 
         PostCreatedDto postDto = new PostCreatedDto();
@@ -52,9 +51,6 @@ public class PostController {
         postDto.setCaption(caption);
         if (location != null) {
             postDto.setLocation(location);
-        }
-        if (tags != null) {
-            postDto.setTags(tags);
         }
         if (file != null && !file.isEmpty()) {
             postDto.setFile(file);
@@ -98,10 +94,9 @@ public class PostController {
     public ResponseEntity<?> editPost(@RequestParam("postId") String postId,
                                       @RequestParam("caption") String caption,
                                       @RequestParam(value = "location", required = false) String location,
-                                      @RequestParam(value = "tags", required = false) String tags,
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            PostToFrontendDTO updatedPost = postService.editPost(postId, caption, location, tags, file);
+            PostToFrontendDTO updatedPost = postService.editPost(postId, caption, location, file);
             return ResponseEntity.ok(updatedPost);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

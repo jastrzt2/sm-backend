@@ -11,7 +11,6 @@ public class PostDto {
     private String caption;
     private String imageUrl;
     private String location;
-    private String tags;
     private ObjectId userId;
     private Date createdAt;
     private Date updatedAt;

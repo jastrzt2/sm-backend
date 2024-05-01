@@ -138,7 +138,7 @@ public class PostService {
         return postDTOConverter.convertToFrontendPost(post);
     }
 
-    public PostToFrontendDTO editPost(String postId, String caption, String location, String tags, MultipartFile file) {
+    public PostToFrontendDTO editPost(String postId, String caption, String location, MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("User not authenticated");
@@ -156,7 +156,6 @@ public class PostService {
         post.setUserId(currentPost.getUserId());
         post.setCaption(caption);
         post.setLocation(location);
-        post.setTags(tags);
         if (file != null && !file.isEmpty()) {
             try {
                 imageService.deleteImage(currentPost.getImageUrl());

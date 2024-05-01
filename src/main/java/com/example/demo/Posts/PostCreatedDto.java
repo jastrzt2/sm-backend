@@ -9,6 +9,5 @@ public class PostCreatedDto {
     private String userId;
     private String caption;
     private String location;
-    private String tags;
     private MultipartFile file;
 }

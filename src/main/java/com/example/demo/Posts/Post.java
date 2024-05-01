@@ -25,7 +25,6 @@ public class Post {
     private ObjectId id;
     private String caption;
     private String location;
-    private String tags;
     private String imageUrl;
     private ObjectId userId;
     private Date createdAt;

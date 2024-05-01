@@ -16,7 +16,6 @@ public class PostToFrontendDTO {
     private String id;
     private String caption;
     private String location;
-    private String tags;
     private String imageUrl;
     private String userId;
     private String creatorName;
