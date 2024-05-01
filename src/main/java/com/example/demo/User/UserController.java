@@ -72,8 +72,8 @@ public class UserController {
     public ResponseEntity<?> editUser( @PathVariable String id,
                                        @RequestParam(required = false) MultipartFile file,
                                        @RequestParam("name") String name,
-                                       @RequestParam("bio") String bio,
-                                       @RequestParam("city") String city) {
+                                       @RequestParam(required = false) String bio,
+                                       @RequestParam(required = false) String city){
         try {
             return ResponseEntity.ok(userService.updateUser(name, bio, city, file, id));
         } catch (Exception e) {
