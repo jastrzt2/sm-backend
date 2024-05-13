@@ -27,6 +27,12 @@ public class PostController {
         return new ResponseEntity<>(postService.singlePost(id), HttpStatus.OK);
     }
 
+    @GetMapping("/getWatched")
+    public List<PostToFrontendDTO> getFollowedPosts(@RequestParam(required = false) String cursor) {
+        int size = 9;
+        return postService.findPostsOfWatchedUsersByCursor(cursor, size);
+    }
+
     @GetMapping("/get")
     public List<PostToFrontendDTO> getPosts(@RequestParam(required = false) String cursor) {
         int size = 9;

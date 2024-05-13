@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/api/v1/posts/getPostsList*")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/get/*")).permitAll()
+                        .requestMatchers(antMatcher("/api/v1/posts/getWatched")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/**")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/edit")).permitAll()
                         .requestMatchers(antMatcher("/api/v1/posts/delete")).permitAll()

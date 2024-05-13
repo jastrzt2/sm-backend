@@ -19,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -230,6 +227,34 @@ public class PostService {
                 .map(postDTOConverter::convertToFrontendPost)
                 .collect(Collectors.toList());
     }
+
+    public List<PostToFrontendDTO> findPostsOfWatchedUsersByCursor(String cursor, int size) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        User user = (User) authentication.getPrincipal();
+
+        if (user.getWatched() == null || user.getWatched().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").in(user.getWatched()));
+
+        if (cursor != null && !cursor.isEmpty()) {
+            ObjectId cursorId = new ObjectId(cursor);
+            query.addCriteria(Criteria.where("_id").lt(cursorId));
+        }
+
+        query.with(Sort.by(Sort.Direction.DESC, "_id")).limit(size);
+
+        List<Post> posts = mongoTemplate.find(query, Post.class);
+        return posts.stream()
+                .map(postDTOConverter::convertToFrontendPost)
+                .collect(Collectors.toList());
+    }
+
 
 
     public List<PostToFrontendDTO> searchPosts(String searchTerm) {
